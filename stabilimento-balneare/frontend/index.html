@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Stabilimento Balneare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fas fa-umbrella-beach"></i> Stabilimento Balneare</h1>
+                </div>
+                <div class="header-right">
+                    <div class="stats-quick">
+                        <div class="stat-item">
+                            <span class="stat-label">Tende Occupate</span>
+                            <span class="stat-value" id="stat-occupate">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Oggi</span>
+                            <span class="stat-value" id="stat-oggi">-</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="openModal('nuova-prenotazione')">
+                        <i class="fas fa-plus"></i> Nuova Prenotazione
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-tab="mappa">
+                <i class="fas fa-map"></i>
+                <span>Mappa Tende</span>
+            </div>
+            <div class="nav-item" data-tab="prenotazioni">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Prenotazioni</span>
+            </div>
+            <div class="nav-item" data-tab="clienti">
+                <i class="fas fa-users"></i>
+                <span>Clienti</span>
+            </div>
+            <div class="nav-item" data-tab="conti">
+                <i class="fas fa-receipt"></i>
+                <span>Conti Aperti</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboard">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Statistiche Giornaliere</h3>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-number" id="dashboard-occupate">0</div>
+                                <div class="stat-label">Tende Occupate</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number" id="dashboard-totali">0</div>
+                                <div class="stat-label">Tende Totali</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number" id="dashboard-fatturato">€0</div>
+                                <div class="stat-label">Fatturato Mese</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number" id="dashboard-conti">€0</div>
+                                <div class="stat-label">Conti Aperti</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Prenotazioni Recenti</h3>
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="recent-bookings" id="recent-bookings">
+                            <!-- Popolato dinamicamente -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Conti Non Pagati</h3>
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="unpaid-bills" id="unpaid-bills">
+                            <!-- Popolato dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mappa Tende Tab -->
+            <div class="tab-content" id="mappa">
+                <div class="mappa-controls">
+                    <div class="controls-left">
+                        <h2>Mappa Tende Balneari</h2>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color libera"></div>
+                                <span>Libera</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color occupata"></div>
+                                <span>Occupata</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color prenotata"></div>
+                                <span>Prenotata</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <input type="date" id="data-visualizzazione" value="">
+                        <button class="btn-secondary" onclick="resetPosizioni()">
+                            <i class="fas fa-undo"></i> Reset Posizioni
+                        </button>
+                    </div>
+                </div>
+                <div class="mappa-container" id="mappa-container">
+                    <!-- Tende popolate dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Prenotazioni Tab -->
+            <div class="tab-content" id="prenotazioni">
+                <div class="table-header">
+                    <h2>Gestione Prenotazioni</h2>
+                    <div class="table-filters">
+                        <input type="date" id="filtro-data-inizio" placeholder="Data inizio">
+                        <input type="date" id="filtro-data-fine" placeholder="Data fine">
+                        <button class="btn-secondary" onclick="loadPrenotazioni()">
+                            <i class="fas fa-search"></i> Filtra
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Telefono</th>
+                                <th>Tenda</th>
+                                <th>Data Inizio</th>
+                                <th>Data Fine</th>
+                                <th>Stato</th>
+                                <th>Prezzo</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prenotazioni-tbody">
+                            <!-- Popolato dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clienti Tab -->
+            <div class="tab-content" id="clienti">
+                <div class="table-header">
+                    <h2>Anagrafe Clienti</h2>
+                    <div class="table-filters">
+                        <input type="text" id="search-clienti" placeholder="Cerca cliente...">
+                        <button class="btn-primary" onclick="openModal('nuovo-cliente')">
+                            <i class="fas fa-plus"></i> Nuovo Cliente
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Telefono</th>
+                                <th>Email</th>
+                                <th>Data Registrazione</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clienti-tbody">
+                            <!-- Popolato dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Conti Aperti Tab -->
+            <div class="tab-content" id="conti">
+                <div class="table-header">
+                    <h2>Conti Aperti</h2>
+                    <button class="btn-primary" onclick="openModal('nuovo-conto')">
+                        <i class="fas fa-plus"></i> Aggiungi Spesa
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Tenda</th>
+                                <th>Descrizione</th>
+                                <th>Importo</th>
+                                <th>Data</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="conti-tbody">
+                            <!-- Popolato dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal per Nuova Prenotazione -->
+    <div class="modal" id="modal-nuova-prenotazione">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuova Prenotazione</h3>
+                <button class="modal-close" onclick="closeModal('nuova-prenotazione')">&times;</button>
+            </div>
+            <form id="form-prenotazione">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <select id="cliente-select" required>
+                            <option value="">Seleziona cliente...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tenda</label>
+                        <select id="tenda-select" required>
+                            <option value="">Seleziona tenda...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data Inizio</label>
+                        <input type="date" id="data-inizio" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Fine</label>
+                        <input type="date" id="data-fine" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prezzo Totale</label>
+                        <input type="number" id="prezzo-totale" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Acconto</label>
+                        <input type="number" id="acconto" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Note</label>
+                    <textarea id="note-prenotazione" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('nuova-prenotazione')">Annulla</button>
+                    <button type="submit" class="btn-primary">Crea Prenotazione</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal per Nuovo Cliente -->
+    <div class="modal" id="modal-nuovo-cliente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Cliente</h3>
+                <button class="modal-close" onclick="closeModal('nuovo-cliente')">&times;</button>
+            </div>
+            <form id="form-cliente">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nome *</label>
+                        <input type="text" id="nome-cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono *</label>
+                        <input type="tel" id="telefono-cliente" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email-cliente">
+                </div>
+                <div class="form-group">
+                    <label>Note</label>
+                    <textarea id="note-cliente" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('nuovo-cliente')">Annulla</button>
+                    <button type="submit" class="btn-primary">Salva Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal per Nuovo Conto -->
+    <div class="modal" id="modal-nuovo-conto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Aggiungi Spesa</h3>
+                <button class="modal-close" onclick="closeModal('nuovo-conto')">&times;</button>
+            </div>
+            <form id="form-conto">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prenotazione</label>
+                        <select id="prenotazione-select" required>
+                            <option value="">Seleziona prenotazione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Servizio</label>
+                        <select id="servizio-select">
+                            <option value="">Servizio personalizzato...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Descrizione *</label>
+                        <input type="text" id="descrizione-conto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Importo *</label>
+                        <input type="number" id="importo-conto" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Note</label>
+                    <textarea id="note-conto" rows="2"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('nuovo-conto')">Annulla</button>
+                    <button type="submit" class="btn-primary">Aggiungi Spesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
